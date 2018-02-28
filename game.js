@@ -147,6 +147,9 @@ let gameOfLife = {
     document.getElementById('play_btn').addEventListener('click', event => {
       gameofLifeObj.play();
     });
+    document.getElementById('stop_btn').addEventListener('click', event => {
+      gameofLifeObj.stop();
+    });
   },
 
   step: function () {
@@ -198,13 +201,14 @@ let gameOfLife = {
   },
 
   play: function () {
+    let gameOfLifeObj = this;
     // Start Auto-Play by running the 'step' function
     // automatically repeatedly every fixed time interval
     if (this.stepInterval) {
       return this.stop();
     }
 
-    this.stepInterval = setInterval(this.step.bind(this), 750);
+    this.stepInterval = setInterval(this.step.bind(this), 400);
   },
 
   stop: function () {
