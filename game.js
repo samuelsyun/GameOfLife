@@ -48,11 +48,63 @@ let gameOfLife = {
     })
   },
 
-  getCoordsOfCell: function(cell) {
+  getCoordsOfCell: function (cell) {
     let cellId = cell.id;
     let idSplit = cellId.split('-');
 
     return idSplit.map(coodStr => +coodStr);
+  },
+
+  getCellStatus: function (cell) {
+    return cell.getAttribute('data-status');
+  },
+
+  setCellStatus: function (cell, status) {
+    cell.className = status;
+    cell.setAttribute('data-status', status)
+  },
+
+  toggleCellStatus: function (cell) {
+    if (this.getCellStatus(cell) === 'dead') {
+      this.setCellStatus(cell, 'alive');
+    } else {
+      this.setCellStatus(cell, 'dead');
+    }
+  },
+
+  selectCell: function (w, h) {
+    return document.getElementById(`${w}-${h}`);
+  },
+
+  getNeighbors: function (cell) {
+    let neighborsArr = [];
+    let thisCellCoords = this.getCoordsOfCell(cell);
+    let cellW = thisCellCoords[0];
+    let cellH = thisCellCoords[1];
+
+    neighborsArr.push(this.selectCell(cellW - 1, cellH - 1));
+    neighborsArr.push(this.selectCell(cellW, cellH - 1));
+    neighborsArr.push(this.selectCell(cellW + 1, cellH - 1));
+
+    neighborsArr.push(this.selectCell(cellW - 1, cellH));
+    neighborsArr.push(this.selectCell(cellW + 1, cellH));
+
+    neighborsArr.push(this.selectCell(cellW - 1, cellH + 1));
+    neighborsArr.push(this.selectCell(cellW, cellH + 1));
+    neighborsArr.push(this.selectCell(cellW + 1, cellH + 1));
+
+    return neighborsArr.filter(neighbor => {
+      return neighbor !== null;
+    })
+  },
+
+  getAliveNeighbors: function (cell) {
+    let neighborsArr = this.getNeighbors(cell);
+    let gameofLifeObj = this;
+
+    return neighborsArr.filter(function (neighbor) {
+      return gameofLifeObj.getCellStatus(neighbor) === 'alive'
+    })
   },
 
   setupBoardEvents: function () {
@@ -69,24 +121,32 @@ let gameOfLife = {
     // EXAMPLE FOR ONE CELL
     // Here is how we would catch a click event on just the 0-0 cell
     // You need to add the click event on EVERY cell on the board
+    let gameofLifeObj = this;
 
     let onCellClick = function (e) {
 
       // QUESTION TO ASK YOURSELF: What is "this" equal to here?
 
       // how to set the style of the cell when it's clicked
-      if (this.dataset.status == 'dead') {
-        this.className = 'alive';
-        this.dataset.status = 'alive';
-      } else {
-        this.className = 'dead';
-        this.dataset.status = 'dead';
-      }
-    };
+      gameofLifeObj.toggleCellStatus(this);
+    }
 
-    this.forEachCell((cell, h, w) => {
+    this.forEachCell(cell => {
       cell.onclick = onCellClick;
-    })
+    });
+
+    document.getElementById('step_btn').addEventListener('click', event => {
+      gameofLifeObj.step();
+    });
+    document.getElementById('clear_btn').addEventListener('click', event => {
+      gameofLifeObj.clear();
+    });
+    document.getElementById('reset_btn').addEventListener('click', event => {
+      gameofLifeObj.reset();
+    });
+    document.getElementById('play_btn').addEventListener('click', event => {
+      gameofLifeObj.play();
+    });
   },
 
   step: function () {
@@ -98,11 +158,58 @@ let gameOfLife = {
     // You need to:
     // 1. Count alive neighbors for all cells
     // 2. Set the next state of all cells based on their alive neighbors
+
+    let gameOfLifeObj = this;
+    let cellsToToggle = [];
+
+    this.forEachCell(function (cell, w, h) {
+      let countAliveNeighbors = gameOfLifeObj.getAliveNeighbors(cell).length;
+
+      if (gameOfLifeObj.getCellStatus(cell) === 'alive') {
+        if (countAliveNeighbors !== 2 && countAliveNeighbors !== 3) {
+          cellsToToggle.push(cell);
+        }
+      } else {
+        if (countAliveNeighbors === 3) {
+          cellsToToggle.push(cell);
+        }
+      }
+    })
+
+    cellsToToggle.forEach(function(cellToToggle) {
+      gameOfLifeObj.toggleCellStatus(cellToToggle);
+    })
   },
 
-  enableAutoPlay: function () {
+  clear: function () {
+    this.forEachCell(function(cell) {
+      this.setCellStatus(cell, 'dead')
+    }.bind(this));
+  },
+
+  reset: function () {
+    this.forEachCell(function(cell) {
+      if(Math.random() > 0.5) {
+        this.setCellStatus(cell, 'alive');
+      } else {
+        this.setCellStatus(cell, 'dead');
+      }
+    }.bind(this));
+  },
+
+  play: function () {
     // Start Auto-Play by running the 'step' function
     // automatically repeatedly every fixed time interval
+    if (this.stepInterval) {
+      return this.stop();
+    }
+
+    this.stepInterval = setInterval(this.step.bind(this), 750);
+  },
+
+  stop: function () {
+    clearInterval(this.stepInterval);
+    this.stepInterval = null;
   }
 
 };
