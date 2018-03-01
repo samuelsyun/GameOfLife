@@ -1,6 +1,6 @@
 let gameOfLife = {
-  height: 12,
-  width: 12, // width and height dimensions of the board
+  height: 15,
+  width: 15, // width and height dimensions of the board
   stepInterval: null, // should be used to hold reference to an interval that is "playing" the game
 
   createAndShowBoard: function () {
@@ -25,6 +25,27 @@ let gameOfLife = {
 
     // once html elements are added to the page, attach events to them
     this.setupBoardEvents();
+  },
+
+
+  updateBoard: function () {
+    let board = document.getElementById('board');
+
+    let newTableHtml = '';
+    for (let h = 0; h < this.height; h++) {
+      newTableHtml += `<tr id='row+${h}'>`;
+
+      for (let w = 0; w < this.width; w++) {
+        newTableHtml += `<td data-status='dead' id='${w}-${h}'></td>`;
+      }
+      newTableHtml += "</tr>";
+    }
+
+    if (this.height < 5 || this.height > 25 || this.width < 5 || this.width > 45 || isNaN(this.height) || isNaN(this.width)) {
+      alert('Please enter valid input!')
+    } else {
+      board.innerHTML = newTableHtml;
+    }
   },
 
   forEachCell: function (iteratorFunc) {
@@ -100,10 +121,10 @@ let gameOfLife = {
 
   getAliveNeighbors: function (cell) {
     let neighborsArr = this.getNeighbors(cell);
-    let gameofLifeObj = this;
+    let gameOfLifeObj = this;
 
     return neighborsArr.filter(function (neighbor) {
-      return gameofLifeObj.getCellStatus(neighbor) === 'alive'
+      return gameOfLifeObj.getCellStatus(neighbor) === 'alive'
     })
   },
 
@@ -121,14 +142,14 @@ let gameOfLife = {
     // EXAMPLE FOR ONE CELL
     // Here is how we would catch a click event on just the 0-0 cell
     // You need to add the click event on EVERY cell on the board
-    let gameofLifeObj = this;
+    let gameOfLifeObj = this;
 
     let onCellClick = function (e) {
 
       // QUESTION TO ASK YOURSELF: What is "this" equal to here?
 
       // how to set the style of the cell when it's clicked
-      gameofLifeObj.toggleCellStatus(this);
+      gameOfLifeObj.toggleCellStatus(this);
     }
 
     this.forEachCell(cell => {
@@ -136,20 +157,28 @@ let gameOfLife = {
     });
 
     document.getElementById('step_btn').addEventListener('click', event => {
-      gameofLifeObj.step();
+      gameOfLifeObj.step();
     });
     document.getElementById('clear_btn').addEventListener('click', event => {
-      gameofLifeObj.clear();
+      gameOfLifeObj.clear();
     });
     document.getElementById('reset_btn').addEventListener('click', event => {
-      gameofLifeObj.reset();
+      gameOfLifeObj.reset();
     });
     document.getElementById('play_btn').addEventListener('click', event => {
-      gameofLifeObj.play();
+      gameOfLifeObj.play();
     });
-    document.getElementById('stop_btn').addEventListener('click', event => {
-      gameofLifeObj.stop();
+    document.getElementById('submit_btn').addEventListener('click', event => {
+      this.height = Number(document.getElementById('row-input').value);
+      this.width = Number(document.getElementById('column-input').value);
+      this.updateBoard();
     });
+    document.getElementById('default_btn').addEventListener('click', event => {
+      this.height = 15;
+      this.width = 15;
+      this.updateBoard();
+    });
+
   },
 
   step: function () {
@@ -179,29 +208,25 @@ let gameOfLife = {
       }
     })
 
-    cellsToToggle.forEach(function(cellToToggle) {
+    cellsToToggle.forEach(function (cellToToggle) {
       gameOfLifeObj.toggleCellStatus(cellToToggle);
     })
   },
 
   clear: function () {
-    this.forEachCell(function(cell) {
+    this.forEachCell(cell => {
       this.setCellStatus(cell, 'dead')
-    }.bind(this));
+    });
   },
 
   reset: function () {
-    this.forEachCell(function(cell) {
-      if(Math.random() > 0.5) {
-        this.setCellStatus(cell, 'alive');
-      } else {
-        this.setCellStatus(cell, 'dead');
-      }
-    }.bind(this));
+    this.forEachCell(cell => {
+      let status = Math.random() > 0.5 ? 'alive' : 'dead';
+      return this.setCellStatus(cell, status);
+    });
   },
 
   play: function () {
-    let gameOfLifeObj = this;
     // Start Auto-Play by running the 'step' function
     // automatically repeatedly every fixed time interval
     if (this.stepInterval) {
@@ -214,7 +239,12 @@ let gameOfLife = {
   stop: function () {
     clearInterval(this.stepInterval);
     this.stepInterval = null;
-  }
+  },
+
+  // setTable: function () {
+  //   this.height = Number(document.getElementById('row-input').value);
+  //   this.width = Number(document.getElementById('column-input').value);
+  // }
 
 };
 
