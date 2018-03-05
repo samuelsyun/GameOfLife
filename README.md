@@ -2,8 +2,10 @@
 
 
 - Player can set dimensions of the table.
-- Player can set patterns by clicking each cell or set random pattern by clicking Reset Random button.
-- Step button will guides the player by each steps and Play/Stop button will play the step buttons continuously.
+- Player can set a pattern by clicking each cell or a random pattern by clicking Reset Random button.
+- Step button will guide the player by each step.
+- Play/Stop button will play and stop the Step button continuously.
+- Player can clear and reset the table by clicking Reset button
 
 
 #### html, css, bootstrap and javascript
