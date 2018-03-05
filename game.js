@@ -41,11 +41,12 @@ let gameOfLife = {
       newTableHtml += "</tr>";
     }
 
-    if (this.height < 5 || this.height > 25 || this.width < 5 || this.width > 45 || isNaN(this.height) || isNaN(this.width)) {
+    if (this.height < 5 || this.height > 25 || this.width < 5 || this.width > 50 || isNaN(this.height) || isNaN(this.width)) {
       alert('Please enter valid input!')
     } else {
       board.innerHTML = newTableHtml;
     }
+
   },
 
   forEachCell: function (iteratorFunc) {
@@ -173,6 +174,7 @@ let gameOfLife = {
       this.width = Number(document.getElementById('column-input').value);
       this.updateBoard();
     });
+
     document.getElementById('default_btn').addEventListener('click', event => {
       this.height = 15;
       this.width = 15;
@@ -240,11 +242,6 @@ let gameOfLife = {
     clearInterval(this.stepInterval);
     this.stepInterval = null;
   },
-
-  // setTable: function () {
-  //   this.height = Number(document.getElementById('row-input').value);
-  //   this.width = Number(document.getElementById('column-input').value);
-  // }
 
 };
 
